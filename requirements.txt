@@ -1,0 +1,9 @@
+pandas
+numpy
+yfinance
+scipy
+streamlit
+openpyxl
+cvxpy
+plotly
+jinja2>=3.1.2
