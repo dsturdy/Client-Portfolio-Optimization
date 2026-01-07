@@ -1,0 +1,8 @@
+# Just telling Streamlit what theme to reference
+
+[theme]
+primaryColor="#B9975B"              # gold
+backgroundColor="#F9FAFB"           # very light gray
+secondaryBackgroundColor="#FFFFFF"  # cards / panels
+textColor="#1E293B"                 # slate / dark gray
+font="sans serif"
