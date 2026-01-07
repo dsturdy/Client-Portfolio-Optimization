@@ -1,0 +1,60 @@
+/* This is just used to create the desired Streamlit layout */
+
+/* ---- Global layout ---- */
+[data-testid="stAppViewContainer"] {
+    background-color: #F9FAFB;
+}
+
+/* Sidebar */
+[data-testid="stSidebar"] {
+    background-color: #FFFFFF;
+    border-right: 1px solid #E5E7EB;
+}
+
+/* Headings */
+h1, h2, h3 {
+    color: #1E293B !important;
+}
+
+/* Tables (Streamlit st.table) */
+[data-testid="stTable"] table {
+    border-radius: 10px !important;
+    width: 100%;              /* use full width of column */
+    table-layout: auto;       /* let browser auto-size columns */
+}
+
+/* Hide the index header cell (top-left blank cell) */
+[data-testid="stTable"] thead th:first-child {
+    display: none;
+}
+
+/* Hide the row index cells */
+[data-testid="stTable"] tbody th {
+    display: none;
+}
+
+/* Widen the Fund column so the name fits nicely.
+   Row structure: [index th] [Fund] [Ticker] [Asset group] [Current (%)] ...
+   So Fund is the 2nd child in each row. */
+[data-testid="stTable"] tbody tr > *:nth-child(2),
+[data-testid="stTable"] thead tr > *:nth-child(2) {
+    min-width: 260px;         /* tweak this if you want more/less */
+}
+
+/* Prevent ugly wrapping in table cells */
+[data-testid="stTable"] td {
+    white-space: nowrap !important;
+}
+
+/* Metrics */
+[data-testid="stMetricValue"] {
+    color: #B9975B !important;
+}
+
+/* Make metric HEADERS bigger + bold (but leave numbers as-is) */
+[data-testid="stMetricLabel"] {
+    font-size: 1.05rem !important;   /* slightly larger */
+    font-weight: 700 !important;     /* bold */
+    color: #1E293B !important;       /* deep slate */
+    letter-spacing: 0.2px;
+}
