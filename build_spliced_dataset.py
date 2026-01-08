@@ -482,21 +482,31 @@ def build_spliced_dataset() -> None:
                 f"{fund} vs {proxy_name}"
             )
 
-        ratio = fund_overlap / proxy_overlap
-        scale = ratio.median()
+        # Use first overlap ratio for backfilling
+        first_overlap_date = overlap_idx.min()
+        fund_first = float(fund_price.loc[first_overlap_date])
+        proxy_first = float(proxy_price.loc[first_overlap_date])
+
+        if not np.isfinite(fund_first) or not np.isfinite(proxy_first) or proxy_first == 0.0:
+            raise ValueError(
+                f"Invalid first-overlap prices for {fund} vs {proxy_name} on {first_overlap_date}: "
+                f"fund={fund_first}, proxy={proxy_first}"
+            )
+
+        scale = fund_first / proxy_first
 
         proxy_scaled = proxy_price * scale
         fund_start = fund_price.index.min()
 
         proxy_pre = proxy_scaled[
             (proxy_scaled.index < fund_start) & (proxy_scaled.index >= start_date)
-        ]
+            ]
 
         combined = pd.concat([proxy_pre, fund_price]).sort_index()
         combined = combined[
             (combined.index >= start_date)
             & (combined.index <= TARGET_END_DATE)
-        ]
+            ]
 
         return combined, float(scale), float(overlap_years)
 
