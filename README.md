@@ -73,9 +73,10 @@ At a high level, the workflow is:
   - runs quarterly rebalancing backtests using daily NAV series
   
 
-  **Note:** Key policy constraints (risk targets, equity caps, illiquid caps,
-  cash caps, etc.) are intentionally exposed as editable constants near the top
-  of this file for easy scenario testing.
+  **Note:** Key policy constraints (e.g., risk targets, equity caps,
+  illiquid caps, cash caps) are intentionally exposed as editable constants
+  near the top of this file. When running the app locally, changing these values
+  and rerunning the optimization in the UI will immediately reflect the updated constraints.
 
 - `analytics.py`  
   Shared analytics utilities:
@@ -90,8 +91,9 @@ At a high level, the workflow is:
   - tables and charts comparing current vs optimized portfolios
   
 
-  The UI also contains editable defaults (e.g., lookback window, rebalancing
-  frequency) that can be adjusted when running the app locally.
+The UI also includes configurable defaults (such as the lookback window and rebalancing frequency) 
+that are defined directly in the code and can be adjusted by editing app.py and rerunning the 
+optimization in the UI. 
 
 - `run_case_study.py`  
   One-command driver script:
@@ -121,8 +123,8 @@ On first run, the `data/` folder is updated containing:
 ---
 ## Setup
 
-> **First:** make sure you are in the project folder (the one containing  
-> `run_case_study.py` and `app.py`). If you downloaded a ZIP, unzip it and
+> **First:** download the project from Github and make sure you are in the project folder
+> (the one containing `run_case_study.py` and `app.py`). If you downloaded a ZIP, unzip it and
 > open a terminal in that folder (or `cd` into the pathname):
 >
 > ```bash
