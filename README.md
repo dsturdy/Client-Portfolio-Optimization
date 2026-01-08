@@ -1,5 +1,9 @@
 # Conceptual Proof – Asset Allocation Optimization Program
 
+
+**Author:** Dylan Sturdevant  
+**Context:** First Eagle candidate assessment
+
 This repository contains my solution for the First Eagle take-home case study:
 a rules-based asset allocation optimizer paired with a minimal Streamlit UI
 for running scenarios and visualizing results.
