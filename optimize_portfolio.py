@@ -505,12 +505,67 @@ def backtest_quarterly_daily(
         daily_prices = daily_prices.dropna(how="all")
         daily_rets = daily_prices.pct_change()
 
-        # Fixed-weight portfolio — rebalancing to w implicitly each day
-        port_rets = (daily_rets @ w).fillna(0.0)
+        daily_rets = daily_rets.reindex(columns=tickers).fillna(0.0)
 
-        nav = (1.0 + port_rets).cumprod()
+        # Monthly dates for this backtest window (month-end)
+        monthly_dates = rets_bt.index
+
+        # Map frequency string -> months between rebalances
+        freq_map = {
+            "quarterly": 3,
+            "semiannual": 6,
+            "annual": 12,
+        }
+        if rebalance_freq not in freq_map:
+            raise ValueError(
+                f"rebalance_freq must be one of {list(freq_map.keys())}, got {rebalance_freq!r}"
+            )
+
+        freq_months = freq_map[rebalance_freq]
+
+        # Build rebalance month indices (start immediately in the sliced window)
+        rebalance_month_ixs = _rebalance_indices(
+            monthly_dates,
+            start_months=1,  # start at first month in the sliced window
+            freq_months=freq_months,
+        )
+
+        # Map each rebalance *month* to the last daily date <= that month-end
+        dates_daily = daily_prices.index
+        rebalance_daily_ixs: list[int] = []
+        for m_ix in rebalance_month_ixs:
+            m_date = monthly_dates[m_ix]
+            mask = dates_daily <= m_date
+            if mask.any():
+                rebalance_daily_ixs.append(np.where(mask)[0][-1])
+
+        rebalance_daily_ixs = set(rebalance_daily_ixs)
+
+        # Drift + rebalance simulation
+        w_target = w.copy()
+        w_live = w_target.copy()
+
+        nav_vals = []
+        nav_level = 1.0
+
+        for i, (dt, r) in enumerate(daily_rets.iterrows()):
+            # portfolio return using current live weights
+            port_ret = float((w_live * r).sum())
+            nav_level *= (1.0 + port_ret)
+            nav_vals.append(nav_level)
+
+            # drift weights with asset returns
+            w_live = w_live * (1.0 + r)
+            s = float(w_live.sum())
+            if s != 0:
+                w_live = w_live / s
+
+            # rebalance on schedule
+            if i in rebalance_daily_ixs:
+                w_live = w_target.copy()
+
+        nav = pd.Series(nav_vals, index=daily_rets.index, name="nav")
         nav = nav / nav.iloc[0] * 10000
-        nav.name = "nav"
 
         return {"nav": nav}
 
