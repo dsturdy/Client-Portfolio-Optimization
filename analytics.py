@@ -145,23 +145,52 @@ def compute_group_risk_contrib(
     out.index.name = "Asset group"
     return out
 
-
 def compute_max_drawdown(
     rets: pd.DataFrame,
     weights: pd.Series,
     tickers: list[str],
 ) -> float:
+    """
+    Computing the max drawdown based on daily returns
+    """
+    # Safety
+    if tickers is None or len(tickers) == 0:
+        return np.nan
+
+    # Align weights
+    w = weights.reindex(tickers).fillna(0.0)
+    s = float(w.sum())
+    if s == 0:
+        return np.nan
+    w = w / s
 
     rets_sub = rets[tickers].dropna(how="all")
     if rets_sub.empty:
         return np.nan
 
-    w = weights.reindex(tickers).fillna(0.0).values
-    port_rets = rets_sub.values @ w
-    if len(port_rets) == 0:
+    start_date = rets_sub.index.min()
+    end_date = rets_sub.index.max()
+
+    from optimize_portfolio import load_spliced_prices  # local import avoids circular issues
+    daily_prices = load_spliced_prices()
+    daily_prices = daily_prices.reindex(columns=tickers)
+
+    daily_prices = daily_prices[
+        (daily_prices.index >= start_date) &
+        (daily_prices.index <= end_date)
+    ].dropna(how="all")
+
+    if daily_prices.empty:
         return np.nan
 
-    cum = np.cumprod(1.0 + port_rets)
-    peak = np.maximum.accumulate(cum)
-    dd = cum / peak - 1.0
-    return float(dd.min())  # negative number
+    daily_rets = daily_prices.pct_change().fillna(0.0)
+
+    port_rets = (daily_rets @ w).fillna(0.0)
+
+    # Build NAV (rebased)
+    nav = (1.0 + port_rets).cumprod()
+    # Drawdown on NAV
+    peak = nav.cummax()
+    dd = nav / peak - 1.0
+
+    return float(dd.min())  # negative
