@@ -17,6 +17,11 @@ from analytics import (
     compute_max_drawdown,
 )
 
+st.set_page_config(
+        page_title="First Eagle – Portfolio Optimization Program",
+        layout="wide",
+    )
+
 # Reduce default Streamlit top padding so the app doesn't start halfway down the page
 st.markdown("""
     <style>
@@ -231,10 +236,6 @@ def make_risk_contrib_pie(rc_df: pd.DataFrame):
 # Main app
 # ---------------------------------------------------------------------
 def main() -> None:
-    st.set_page_config(
-        page_title="First Eagle – Portfolio Optimization Program",
-        layout="wide",
-    )
 
     # --- persistent state for last optimization run ---
     if "opt_results" not in st.session_state:
