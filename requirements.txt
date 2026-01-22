@@ -4,6 +4,6 @@ yfinance
 scipy
 streamlit
 openpyxl
-cvxpy
+cvxpy==1.7.5
 plotly
 jinja2>=3.1.2
